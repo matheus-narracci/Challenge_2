@@ -1,0 +1,334 @@
+{
+	"jobConfig": {
+		"name": "glue_test_challenge",
+		"description": "",
+		"role": "arn:aws:iam::318748005472:role/LabRole",
+		"command": "glueetl",
+		"version": "4.0",
+		"runtime": null,
+		"workerType": "G.1X",
+		"numberOfWorkers": 10,
+		"maxCapacity": 10,
+		"maxRetries": 0,
+		"timeout": 2880,
+		"maxConcurrentRuns": 1,
+		"security": "none",
+		"scriptName": "glue_test_challenge.py",
+		"scriptLocation": "s3://aws-glue-assets-318748005472-us-east-1/scripts/",
+		"language": "python-3",
+		"spark": true,
+		"sparkConfiguration": "standard",
+		"jobParameters": [],
+		"tags": [],
+		"jobMode": "VISUAL_MODE",
+		"createdOn": "2024-07-20T02:38:05.907Z",
+		"developerMode": false,
+		"connectionsList": [],
+		"temporaryDirectory": "s3://aws-glue-assets-318748005472-us-east-1/temporary/",
+		"logging": true,
+		"glueHiveMetastore": true,
+		"etlAutoTuning": false,
+		"metrics": true,
+		"observabilityMetrics": true,
+		"bookmark": "job-bookmark-disable",
+		"sparkPath": "s3://aws-glue-assets-318748005472-us-east-1/sparkHistoryLogs/",
+		"flexExecution": false,
+		"minFlexWorkers": null,
+		"maintenanceWindow": null
+	},
+	"dag": {
+		"node-1721443017254": {
+			"nodeId": "node-1721443017254",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [
+				"node-1722295715293"
+			],
+			"name": "SQL Query",
+			"generatedNodeName": "SQLQuery_node1721443017254",
+			"classification": "Transform",
+			"type": "SqlCode",
+			"sqlAliases": [
+				{
+					"from": "node-1722295715293",
+					"alias": "myDataSource"
+				}
+			],
+			"outputSchemas": [
+				[
+					{
+						"key": "tempo_comprado",
+						"fullPath": [
+							"tempo_comprado"
+						],
+						"type": "string"
+					},
+					{
+						"key": "nome_acao",
+						"fullPath": [
+							"nome_acao"
+						],
+						"type": "string"
+					},
+					{
+						"key": "codigo_acao",
+						"fullPath": [
+							"codigo_acao"
+						],
+						"type": "string"
+					},
+					{
+						"key": "qtd_total",
+						"fullPath": [
+							"qtd_total"
+						],
+						"type": "string"
+					},
+					{
+						"key": "data_processamento",
+						"fullPath": [
+							"data_processamento"
+						],
+						"type": "string"
+					}
+				]
+			],
+			"parentsValid": true,
+			"calculatedType": "",
+			"sqlQuery": "SELECT \r\ncast(DATEDIFF(DATE_ADD(current_date(), 2), data) as string) AS tempo_comprado,\r\nnome_acao,\r\ncodigo_acao,\r\ncast(sum(cast(qtde_teorica as bigint)) as string) qtd_total,\r\ncast(current_date as string) as data_processamento\r\nFROM myDataSource\r\ngroup by 1,2,3",
+			"codeGenVersion": 2
+		},
+		"node-1721442969403": {
+			"nodeId": "node-1721442969403",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [],
+			"name": "Amazon S3",
+			"generatedNodeName": "AmazonS3_node1721442969403",
+			"classification": "DataSource",
+			"type": "S3",
+			"isCatalog": false,
+			"format": "parquet",
+			"paths": [
+				"s3://techchallengematheus/input/data/pregao-d0.parquet"
+			],
+			"compressionType": null,
+			"exclusions": [],
+			"groupFiles": null,
+			"groupSize": null,
+			"recurse": true,
+			"maxBand": null,
+			"maxFilesInBand": null,
+			"additionalOptions": {
+				"boundedSize": null,
+				"boundedFiles": null,
+				"enableSamplePath": false,
+				"samplePath": "s3://techchallengematheus/input/data/pregao-d0.parquet",
+				"boundedOption": null
+			},
+			"outputSchemas": [
+				[
+					{
+						"key": "codigo",
+						"fullPath": [
+							"codigo"
+						],
+						"type": "string"
+					},
+					{
+						"key": "acao",
+						"fullPath": [
+							"acao"
+						],
+						"type": "string"
+					},
+					{
+						"key": "tipo",
+						"fullPath": [
+							"tipo"
+						],
+						"type": "string"
+					},
+					{
+						"key": "qtde_teorica",
+						"fullPath": [
+							"qtde_teorica"
+						],
+						"type": "string"
+					},
+					{
+						"key": "part_percent",
+						"fullPath": [
+							"part_percent"
+						],
+						"type": "string"
+					},
+					{
+						"key": "data",
+						"fullPath": [
+							"data"
+						],
+						"type": "string"
+					}
+				]
+			],
+			"calculatedType": "",
+			"codeGenVersion": 2
+		},
+		"node-1722298270871": {
+			"nodeId": "node-1722298270871",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [
+				"node-1721443017254"
+			],
+			"name": "AWS Glue Data Catalog",
+			"generatedNodeName": "AWSGlueDataCatalog_node1722298270871",
+			"classification": "DataSink",
+			"type": "Catalog",
+			"streamingBatchInterval": 100,
+			"database": "default",
+			"table": "dados_acao_b3",
+			"format": "json",
+			"partitionKeys": [
+				"data_processamento"
+			],
+			"schemaChangePolicy": {
+				"enableUpdateCatalog": true,
+				"updateBehavior": "LOG"
+			},
+			"updateCatalogOptions": "partitions",
+			"calculatedType": "S3CatalogDataSink",
+			"runtimeParameters": [],
+			"codeGenVersion": 2
+		},
+		"node-1722295685635": {
+			"nodeId": "node-1722295685635",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [
+				"node-1721442969403"
+			],
+			"name": "Rename Field",
+			"generatedNodeName": "RenameField_node1722295685635",
+			"classification": "Transform",
+			"type": "RenameField",
+			"sourcePath": "codigo",
+			"targetPath": "codigo_acao",
+			"parentsValid": true,
+			"calculatedType": "",
+			"codeGenVersion": 2,
+			"outputSchemas": [
+				[
+					{
+						"key": "acao",
+						"fullPath": [
+							"acao"
+						],
+						"type": "string"
+					},
+					{
+						"key": "tipo",
+						"fullPath": [
+							"tipo"
+						],
+						"type": "string"
+					},
+					{
+						"key": "qtde_teorica",
+						"fullPath": [
+							"qtde_teorica"
+						],
+						"type": "string"
+					},
+					{
+						"key": "part_percent",
+						"fullPath": [
+							"part_percent"
+						],
+						"type": "string"
+					},
+					{
+						"key": "data",
+						"fullPath": [
+							"data"
+						],
+						"type": "string"
+					},
+					{
+						"key": "codigo_acao",
+						"fullPath": [
+							"codigo_acao"
+						],
+						"type": "string"
+					}
+				]
+			]
+		},
+		"node-1722295715293": {
+			"nodeId": "node-1722295715293",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [
+				"node-1722295685635"
+			],
+			"name": "Rename Field",
+			"generatedNodeName": "RenameField_node1722295715293",
+			"classification": "Transform",
+			"type": "RenameField",
+			"sourcePath": "acao",
+			"targetPath": "nome_acao",
+			"parentsValid": true,
+			"calculatedType": "",
+			"codeGenVersion": 2,
+			"outputSchemas": [
+				[
+					{
+						"key": "tipo",
+						"fullPath": [
+							"tipo"
+						],
+						"type": "string"
+					},
+					{
+						"key": "qtde_teorica",
+						"fullPath": [
+							"qtde_teorica"
+						],
+						"type": "string"
+					},
+					{
+						"key": "part_percent",
+						"fullPath": [
+							"part_percent"
+						],
+						"type": "string"
+					},
+					{
+						"key": "data",
+						"fullPath": [
+							"data"
+						],
+						"type": "string"
+					},
+					{
+						"key": "codigo_acao",
+						"fullPath": [
+							"codigo_acao"
+						],
+						"type": "string"
+					},
+					{
+						"key": "nome_acao",
+						"fullPath": [
+							"nome_acao"
+						],
+						"type": "string"
+					}
+				]
+			]
+		}
+	},
+	"hasBeenSaved": false,
+	"usageProfileName": null
+}
